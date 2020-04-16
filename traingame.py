@@ -1,8 +1,6 @@
 from conductor import Conductor
 from city import *
 from numpy.core.defchararray import *
-# la_paz.printCity()
-# mexicali.printCity()
 
 def main():
     
@@ -10,23 +8,41 @@ def main():
     player.location.printCity()
     
     # print(directions_list)
-    dead = False
-    while not dead:
+    game_over = False
+    while not game_over:
         directions_list = player.location.getDirectionsPossible()
         cities_list = player.location.getCitiesPossible()
         inputText = input('> ')
         try:
-            commands(inputText)
-            player.location = eval(move(inputText, directions_list, cities_list))
-            player.location.printCity()
+            # if commands(inputText, player) == 1:
+            #     commands(inputText, player)
+            if commands(inputText, player) == 0:
+                player.location = eval(move(inputText, directions_list, cities_list))
+                player.location.printCity()
         except TypeError:
-            print('Whoops! Try again.')
+            print('Whoops! Try again. For help, type \'help\' or \'h\'.')
         
         
-def commands(inp):
+def commands(inp, conductor):
     if inp == 'exit' or inp == 'quit':
         print('Adios!')
         exit()
+    elif inp == 'look' or inp == 'l':
+        conductor.location.printCity()
+        return 1
+    elif inp == 'help' or inp == 'h':
+        print('''
+Explore Mexico with your small start-up train!
+To move from city to city, type in the cardinal direction indicated, not the desired city.
+    Example:    "Southwest:    Morelia"
+    To travel to Morelia, input 'Southwest' or 'southwest' or 'sw'.
+Other commands:
+    'exit' or 'quit' - exit the game
+    'look' or 'l' - print the current city's name and available cities.
+        ''')
+        return 1
+    else:
+        return 0
 
 def move(inp, dir_list, city_list):
     move_index = inputDirection(inp, dir_list)
