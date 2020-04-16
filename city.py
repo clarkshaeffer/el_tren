@@ -25,7 +25,7 @@ puebla_t = 'Puebla'
 xalapa_t = 'Xalapa'
 chilpancingo_t = 'Chilpancingo'
 oaxaca_t = 'Oaxaca'
-tuxtla_t = 'Tuxtla Gutierrez'
+tuxtla_gutierrez_t = 'Tuxtla Gutierrez'
 villahermosa_t = 'Villahermosa'
 campeche_t = 'Campeche'
 merida_t = 'Merida'
@@ -203,15 +203,15 @@ chilpancingo = City('Chilpancingo, Guerrero.',
 
 oaxaca = City('Oaxaca, Oaxaca.',
 [nw, w, e],
-[puebla_t, chilpancingo_t, tuxtla_t])
+[puebla_t, chilpancingo_t, tuxtla_gutierrez_t])
 
-tuxtla = City('Tuxtla Gutierrez, Chiapas.',
+tuxtla_gutierrez = City('Tuxtla Gutierrez, Chiapas.',
 [n, w],
 [villahermosa_t, oaxaca_t])
 
 villahermosa = City('Villahermosa, Tabasco.',
 [nw, ne, s],
-[xalapa_t, campeche_t, tuxtla_t])
+[xalapa_t, campeche_t, tuxtla_gutierrez_t])
 
 #PENINSULA
 campeche = City('Campeche, Campeche.',
