@@ -1,27 +1,32 @@
 from conductor import Conductor
 from city import *
 from numpy.core.defchararray import *
+import random
 
 def main():
-    
-    player = Conductor(queretaro, 0)
+    player = Conductor(getRandomCity(), 0)
     player.location.printCity()
     
     # print(directions_list)
     game_over = False
     while not game_over:
-        directions_list = player.location.getDirectionsPossible()
-        cities_list = player.location.getCitiesPossible()
+        directions_list = player.location.directions_possible
+        cities_list = player.location.cities_possible
         inputText = input('> ')
         try:
-            # if commands(inputText, player) == 1:
-            #     commands(inputText, player)
             if commands(inputText, player) == 0:
                 player.location = eval(move(inputText, directions_list, cities_list))
                 player.location.printCity()
         except TypeError:
             print('Whoops! Try again. For help, type \'help\' or \'h\'.')
         
+def getRandomCity():
+    x = random.randint(0,31)
+    for i in range(len(getAllCitiesList())):
+        if x == getAllCitiesList()[i].city_id:
+            return getAllCitiesList()[i]
+        # print(getAllCitiesList()[i].directions_possible)
+
         
 def commands(inp, conductor):
     if inp == 'exit' or inp == 'quit':
@@ -30,15 +35,18 @@ def commands(inp, conductor):
     elif inp == 'look' or inp == 'l':
         conductor.location.printCity()
         return 1
+    elif inp == 'points' or inp == 'p':
+        print('Points:', conductor.points)
     elif inp == 'help' or inp == 'h':
-        print('''
-Explore Mexico with your small start-up train!
+        print(
+'''Explore Mexico with your small start-up train!
 To move from city to city, type in the cardinal direction indicated, not the desired city.
     Example:    "Southwest:    Morelia"
     To travel to Morelia, input 'Southwest' or 'southwest' or 'sw'.
 Other commands:
     'exit' or 'quit' - exit the game
     'look' or 'l' - print the current city's name and available cities.
+    'points' or 'p' - print your current score
         ''')
         return 1
     else:
@@ -54,6 +62,7 @@ def move(inp, dir_list, city_list):
             move_to_list[i] = '_'
     move_to = ''.join(move_to_list)
     return move_to
+
 def inputDirection(inp, dir_list):
     fail = False
     for i in range(len(dir_list)):
