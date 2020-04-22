@@ -6,34 +6,83 @@ import random
 def main():
     player = Conductor(getRandomCity(), 0)
     player.location.printCity()
-    
-    # print(directions_list)
+
     game_over = False
     while not game_over:
-        directions_list = player.location.directions_possible
-        cities_list = player.location.cities_possible
-        inputText = input('> ')
-        try:
-            if commands(inputText, player) == 0:
-                player.location = eval(move(inputText, directions_list, cities_list))
-                player.location.printCity()
-        except TypeError:
-            print('Whoops! Try again. For help, type \'help\' or \'h\'.')
-        
+        dropped_off = False
+        go_to_id = getRandomCity().city_id
+        original_id = player.location.city_id
+        picked_up = False
+        new_go_to = True
+        # goTo(go_to_id, player, original_id, picked_up)
+        while not dropped_off:
+
+            if new_go_to:
+                print(goTo(go_to_id, player, original_id, picked_up))
+                new_go_to = False
+            
+            inputText = input('> ')
+            try:
+                if commands(inputText, player, go_to_id, original_id, picked_up) == 0:
+                    player.location = eval(move(inputText, player.location.directions_possible, player.location.cities_possible))
+                    player.location.printCity()
+            except TypeError:
+                print('Whoops! Try again. For help, type \'help\' or \'h\'.')
+
+            
+            if player.location.city_id == go_to_id and not picked_up:
+                print(goTo(go_to_id, player, original_id, picked_up))
+                picked_up = True
+            elif player.location.city_id == original_id and picked_up:
+                dropped_off = True
+                player.points += 1
+                print(goTo(go_to_id, player, original_id, picked_up))
+
+def goTo(go_to, conductor, original, pickup):
+    ##### Make a shortened name for the destination city
+    go_to_name_list = []
+    for i in range(len(getAllCitiesList()[go_to].name)):
+        if getAllCitiesList()[go_to].name[i] != ',':
+            go_to_name_list.append(getAllCitiesList()[go_to].name[i])
+        else:
+            break
+    go_to_name = ''.join(go_to_name_list)
+    ####
+
+    ##### Make a shortened name for the return city
+    original_name_list = []
+    for i in range(len(getAllCitiesList()[original].name)):
+        if getAllCitiesList()[original].name[i] != ',':
+            original_name_list.append(getAllCitiesList()[original].name[i])
+        else:
+            break
+    original_name = ''.join(original_name_list)
+    ####
+
+    if conductor.location.city_id != go_to and not pickup:
+        return 'Go to {}.'.format(go_to_name)
+    elif conductor.location.city_id != go_to and conductor.location.city_id != original and pickup:
+        return 'Return to {}.'.format(original_name)
+    elif conductor.location.city_id == go_to and not pickup:
+        pickup = True
+        return 'Cargo picked up. Now return to {}.'.format(original_name)
+    elif conductor.location.city_id == go_to and pickup:
+        return 'Return to {}.'.format(original_name)
+    elif conductor.location.city_id == original and pickup:
+
+        return 'Dropped off! Points: {}'.format(conductor.points)
+    
 def getRandomCity():
     x = random.randint(0,31)
-    for i in range(len(getAllCitiesList())):
-        if x == getAllCitiesList()[i].city_id:
-            return getAllCitiesList()[i]
-        # print(getAllCitiesList()[i].directions_possible)
+    return getAllCitiesList()[x]
 
-        
-def commands(inp, conductor):
+def commands(inp, conductor, go_to, original, picked_up):
     if inp == 'exit' or inp == 'quit':
         print('Adios!')
         exit()
     elif inp == 'look' or inp == 'l':
         conductor.location.printCity()
+        print(goTo(go_to, conductor, original, picked_up))
         return 1
     elif inp == 'points' or inp == 'p':
         print('Points:', conductor.points)
