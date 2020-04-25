@@ -11,6 +11,8 @@ def main():
     while not game_over:
         dropped_off = False
         go_to_id = getRandomCity().city_id
+        while go_to_id == player.location.city_id:
+            go_to_id = getRandomCity().city_id
         original_id = player.location.city_id
         picked_up = False
         new_go_to = True
@@ -42,7 +44,7 @@ def goTo(go_to, conductor, original, pickup):
     ##### Make a shortened name for the destination city
     go_to_name_list = []
     for i in range(len(getAllCitiesList()[go_to].name)):
-        if getAllCitiesList()[go_to].name[i] != ',':
+        if getAllCitiesList()[go_to].name[i] != ',':# or getAllCitiesList()[go_to].name[i] != '.':
             go_to_name_list.append(getAllCitiesList()[go_to].name[i])
         else:
             break
@@ -52,7 +54,7 @@ def goTo(go_to, conductor, original, pickup):
     ##### Make a shortened name for the return city
     original_name_list = []
     for i in range(len(getAllCitiesList()[original].name)):
-        if getAllCitiesList()[original].name[i] != ',':
+        if getAllCitiesList()[original].name[i] != ',':# or getAllCitiesList()[original].name[i] != '.':
             original_name_list.append(getAllCitiesList()[original].name[i])
         else:
             break
@@ -86,6 +88,11 @@ def commands(inp, conductor, go_to, original, picked_up):
         return 1
     elif inp == 'points' or inp == 'p':
         print('Points:', conductor.points)
+    elif inp == 'map' or inp == 'm':
+        f = open('ascii-map-labeled.txt', 'r')
+        file_contents = f.read()
+        print (file_contents)
+        f.close()
     elif inp == 'help' or inp == 'h':
         print(
 '''Explore Mexico with your small start-up train!
@@ -94,8 +101,9 @@ To move from city to city, type in the cardinal direction indicated, not the des
     To travel to Morelia, input 'Southwest' or 'southwest' or 'sw'.
 Other commands:
     'exit' or 'quit' - exit the game
-    'look' or 'l' - print the current city's name and available cities.
+    'look' or 'l' - print the current city's name, quest, and available cities.
     'points' or 'p' - print your current score
+    'map' or 'm' - print out a reference map of Mexico
         ''')
         return 1
     else:
