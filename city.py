@@ -299,6 +299,17 @@ all_cities_list.append(chetumal)
 def getAllCitiesList():
     return all_cities_list
 
+def getShortName(self):
+    ##### Make a shortened name for a city
+    name_list = []
+    for i in range(len(self.name)):
+        if self.name[i] != ',':# or self.name[i] != '.':
+            name_list.append(self.name[i])
+        else:
+            break
+    return ''.join(name_list)
+    ####
+
 
 
 # def direction_full(self, inputText):

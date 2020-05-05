@@ -1,10 +1,16 @@
 from conductor import Conductor
 from city import *
+# import city as cit
+# import numpy.core.defchararray as numpy
 from numpy.core.defchararray import *
 import random
+import time
+
 
 def main():
-    player = Conductor(getRandomCity(), 0)
+    intro()
+
+    player = Conductor(getAllCitiesList()[setHome()], 0)
     player.location.printCity()
 
     game_over = False
@@ -40,26 +46,48 @@ def main():
                 player.points += 1
                 print(goTo(go_to_id, player, original_id, picked_up))
 
-def goTo(go_to, conductor, original, pickup):
-    ##### Make a shortened name for the destination city
-    go_to_name_list = []
-    for i in range(len(getAllCitiesList()[go_to].name)):
-        if getAllCitiesList()[go_to].name[i] != ',':# or getAllCitiesList()[go_to].name[i] != '.':
-            go_to_name_list.append(getAllCitiesList()[go_to].name[i])
-        else:
-            break
-    go_to_name = ''.join(go_to_name_list)
-    ####
 
-    ##### Make a shortened name for the return city
-    original_name_list = []
-    for i in range(len(getAllCitiesList()[original].name)):
-        if getAllCitiesList()[original].name[i] != ',':# or getAllCitiesList()[original].name[i] != '.':
-            original_name_list.append(getAllCitiesList()[original].name[i])
-        else:
-            break
-    original_name = ''.join(original_name_list)
-    ####
+def intro():
+    inp = lower(input('Intro? (y/n) > '))
+    game_exit(inp)
+    if inp == 'y' or inp == 'yes':
+        for i in range(len(intro_ascii_text)):
+            print(intro_ascii_text[i], end='', flush = True)
+            time.sleep(.005)
+        print('\n\n\n')
+        time.sleep(.75)
+
+
+def setHome():
+    print('\nWhere are you from? Choose a number:\n')
+    time.sleep(.50)
+    for i in range(len(getAllCitiesList())):
+        print(getAllCitiesList()[i].city_id, getAllCitiesList()[i].name)
+        time.sleep(.04)
+    print()
+    ready = False
+    while not ready:
+        inp_num = input('> ')
+        game_exit(inp_num)
+
+        try:
+            if int(inp_num) > 0 and int(inp_num) <= len(getAllCitiesList()):
+                print("You're from {}? (y/n)".format(getShortName(getAllCitiesList()[int(inp_num)])))
+                inp_ready = lower(input('> '))
+                game_exit(inp_ready)
+                if inp_ready == 'y' or inp_ready == 'yes':
+                    ready = True
+                else:
+                    print('Choose a number from the cities listed.')
+        except ValueError:
+            print('Choose a number from the cities listed.')
+    return int(inp_num)
+
+
+def goTo(go_to, conductor, original, pickup):
+    go_to_name = ''.join(getShortName(getAllCitiesList()[go_to]))
+
+    original_name = ''.join(getShortName(getAllCitiesList()[original]))
 
     if conductor.location.city_id != go_to and not pickup:
         return 'Go to {}.'.format(go_to_name)
@@ -73,16 +101,16 @@ def goTo(go_to, conductor, original, pickup):
     elif conductor.location.city_id == original and pickup:
 
         return 'Dropped off! Points: {}'.format(conductor.points)
-    
+
+
 def getRandomCity():
     x = random.randint(0,31)
     return getAllCitiesList()[x]
 
+
 def commands(inp, conductor, go_to, original, picked_up):
-    if inp == 'exit' or inp == 'quit':
-        print('Adios!')
-        exit()
-    elif inp == 'look' or inp == 'l':
+    game_exit(inp)
+    if inp == 'look' or inp == 'l':
         conductor.location.printCity()
         print(goTo(go_to, conductor, original, picked_up))
         return 1
@@ -109,6 +137,7 @@ Other commands:
     else:
         return 0
 
+
 def move(inp, dir_list, city_list):
     move_index = inputDirection(inp, dir_list)
     # print(move_index)
@@ -119,6 +148,7 @@ def move(inp, dir_list, city_list):
             move_to_list[i] = '_'
     move_to = ''.join(move_to_list)
     return move_to
+
 
 def inputDirection(inp, dir_list):
     fail = False
@@ -143,5 +173,24 @@ def inputDirection(inp, dir_list):
             fail = True
     if fail:
         return 'fail'
+
+intro_ascii_text = '''
+                    |_   _  |_   .  _       _       _
+                \)/ | ) (_| |_   | _)   \/ (_) |_| |
+                                        /
+
+
+    __    ____   ______ ____          __  ___ ____  ______ ____ _    __ ______ ___
+   / /   / __ \ / ____// __ \        /  |/  // __ \/_  __//  _/| |  / // ____//__ \ 
+  / /   / / / // /    / / / /______ / /|_/ // / / / / /   / /  | | / // __/    / _/
+ / /___/ /_/ // /___ / /_/ //_____// /  / // /_/ / / /  _/ /   | |/ // /___   /_/
+/_____/\____/ \____/ \____/       /_/  /_/ \____/ /_/  /___/   |___//_____/  (_)
+
+''' #Straight + Slant (fitted) from patorjk.com/software/taag/
+
+def game_exit(inp):
+    if lower(inp) == 'exit' or lower(inp) == 'quit':
+        print('Adios!')
+        exit()
 
 main()
