@@ -1,40 +1,78 @@
+# Loco-Motive by Clark Shaeffer         https://github.com/clarkshaeffer/el_tren
+
+# 
+
+#     Functions:
+#           main
+#           intro
+#           setHome
+#           goTo
+#           getRandomCity
+#           commands
+#           move
+#           inputDirection
+#           game_exit
+#       Objects:
+#            City
+#            Conductor
+
+import os
 from conductor import Conductor
 from city import *
 # import city as cit
-# import numpy.core.defchararray as numpy
-from numpy.core.defchararray import *
+import numpy.core.defchararray as np
+# from numpy.core.defchararray import *
 import random
 import time
 
 
+
+
+
 def main():
-    intro()
-
+    #clear terminal window before starting game
+    os.system('clear') 
+    # Prompt to show intro
+    intro() 
+    # Set player's home point using setHome; access from getAllCitiesList
     player = Conductor(getAllCitiesList()[setHome()], 0)
-    player.location.printCity()
+    #First city_print (method from City object - print current city, state, options, and possibly destination.)
+    player.location.printCity() 
 
+
+    # Game really starts. Overarching while loop begins.
     game_over = False
     while not game_over:
+        # New cargo  
         dropped_off = False
+        # get random new destination city
         go_to_id = getRandomCity().city_id
         while go_to_id == player.location.city_id:
             go_to_id = getRandomCity().city_id
+        #return city is current location, a.k.a. home from setHome().
         original_id = player.location.city_id
         picked_up = False
+        # First time with a new destination - quest printed in printCity()
         new_go_to = True
         # goTo(go_to_id, player, original_id, picked_up)
         while not dropped_off:
 
+            # if first time with new pickup quest, print in printCity() and don't do it again
             if new_go_to:
                 print(goTo(go_to_id, player, original_id, picked_up))
                 new_go_to = False
             
+            # receive move input
             inputText = input('> ')
             try:
+                # If input is not an alternate command (look, map, etc). a.k.a. if input is a cardinal direction:
                 if commands(inputText, player, go_to_id, original_id, picked_up) == 0:
+                    # move to input direction (1) if in directions possible (2) and set location to associated city (3)
                     player.location = eval(move(inputText, player.location.directions_possible, player.location.cities_possible))
+                    # print new city
                     player.location.printCity()
             except TypeError:
+                # 
                 print('Whoops! Try again. For help, type \'help\' or \'h\'.')
 
             
@@ -48,7 +86,7 @@ def main():
 
 
 def intro():
-    inp = lower(input('Intro? (y/n) > '))
+    inp = np.lower(input('Intro? (y/n) > '))
     game_exit(inp)
     if inp == 'y' or inp == 'yes':
         for i in range(len(intro_ascii_text)):
@@ -73,7 +111,7 @@ def setHome():
         try:
             if int(inp_num) > 0 and int(inp_num) <= len(getAllCitiesList()):
                 print("You're from {}? (y/n)".format(getShortName(getAllCitiesList()[int(inp_num)])))
-                inp_ready = lower(input('> '))
+                inp_ready = np.lower(input('> '))
                 game_exit(inp_ready)
                 if inp_ready == 'y' or inp_ready == 'yes':
                     ready = True
@@ -140,8 +178,7 @@ Other commands:
 
 def move(inp, dir_list, city_list):
     move_index = inputDirection(inp, dir_list)
-    # print(move_index)
-    move_to = str(lower(city_list[move_index]))
+    move_to = str(np.lower(city_list[move_index]))
     move_to_list = list(move_to)
     for i in range(len(move_to_list)):
         if move_to_list[i] == ' ':
@@ -189,7 +226,7 @@ intro_ascii_text = '''
 ''' #Straight + Slant (fitted) from patorjk.com/software/taag/
 
 def game_exit(inp):
-    if lower(inp) == 'exit' or lower(inp) == 'quit':
+    if np.lower(inp) == 'exit' or np.lower(inp) == 'quit':
         print('Adios!')
         exit()
 
