@@ -1,3 +1,5 @@
+import random
+
 mexicali_t = 'Mexicali'
 la_paz_t = 'La Paz'
 hermosillo_t = 'Hermosillo'
@@ -311,6 +313,9 @@ def getShortName(self):
     ####
 
 
+def getRandomCity():
+    return getAllCitiesList()[random.randint(0,len(getAllCitiesList()))]
+    # return getAllCitiesList()[x]
 
 # def direction_full(self, inputText):
     #     if inputText == nw:

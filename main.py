@@ -1,6 +1,26 @@
 # Loco-Motive by Clark Shaeffer         https://github.com/clarkshaeffer/el_tren
-
 # 
+# TO DO:
+#   Code organization:
+#       Fix commands mess (not directions + other, but all one)
+#       User input fix across game
+#       Ciudad de Mexico short name has 2 periods.
+#       Finish documentation on current edition
+#       More files for more functions. Keep it clean in the main. 
+#       
+#
+#   Separate quests:
+#       Home - goto - home
+#       goto - destination
+#
+#   City-specific events
+#
+#   A city's main exports
+#
+#
+#
+#
+#
 
 #     Functions:
 #           main
@@ -20,10 +40,13 @@ import os
 from conductor import Conductor
 from city import *
 # import city as cit
-import numpy.core.defchararray as np
+# import numpy.core.defchararray as np
 # from numpy.core.defchararray import *
-import random
-import time
+# import random
+from quest import Quest
+from intro import *
+from commands import *
+from game_input import game_input
 
 
 
@@ -47,7 +70,7 @@ def main():
         dropped_off = False
         # get random new destination city
         go_to_id = getRandomCity().city_id
-        while go_to_id == player.location.city_id:
+        while go_to_id == player.location.city_id: # if the destination is the player's location
             go_to_id = getRandomCity().city_id
         #return city is current location, a.k.a. home from setHome().
         original_id = player.location.city_id
@@ -63,7 +86,9 @@ def main():
                 new_go_to = False
             
             # receive move input
-            inputText = input('> ')
+            
+
+            inputText = game_input('> ', 'Whoops! Try again. For help, type \'help\' or \'h\'.', False, False, True)
             try:
                 # If input is not an alternate command (look, map, etc). a.k.a. if input is a cardinal direction:
                 if commands(inputText, player, go_to_id, original_id, picked_up) == 0:
@@ -85,100 +110,44 @@ def main():
                 print(goTo(go_to_id, player, original_id, picked_up))
 
 
-def intro():
-    inp = np.lower(input('Intro? (y/n) > '))
-    game_exit(inp)
-    if inp == 'y' or inp == 'yes':
-        for i in range(len(intro_ascii_text)):
-            print(intro_ascii_text[i], end='', flush = True)
-            time.sleep(.005)
-        print('\n\n\n')
-        time.sleep(.75)
 
 
-def setHome():
-    print('\nWhere are you from? Choose a number:\n')
-    time.sleep(.50)
-    for i in range(len(getAllCitiesList())):
-        print(getAllCitiesList()[i].city_id, getAllCitiesList()[i].name)
-        time.sleep(.04)
-    print()
-    ready = False
-    while not ready:
-        inp_num = input('> ')
-        game_exit(inp_num)
-
-        try:
-            if int(inp_num) > 0 and int(inp_num) <= len(getAllCitiesList()):
-                print("You're from {}? (y/n)".format(getShortName(getAllCitiesList()[int(inp_num)])))
-                inp_ready = np.lower(input('> '))
-                game_exit(inp_ready)
-                if inp_ready == 'y' or inp_ready == 'yes':
-                    ready = True
-                else:
-                    print('Choose a number from the cities listed.')
-        except ValueError:
-            print('Choose a number from the cities listed.')
-    return int(inp_num)
 
 
 def goTo(go_to, conductor, original, pickup):
-    go_to_name = ''.join(getShortName(getAllCitiesList()[go_to]))
+    # return string of current cargo quest fulfillment.
+    # 
+    # Arguments:
+    # 
+    # go_to: city_id of quest city
+    # conductor: player object
+    # original: city_id of home
+    # pickup: boolean of if cargo is picked up. Determines direction: going to quest city or returning.
 
-    original_name = ''.join(getShortName(getAllCitiesList()[original]))
+    go_to_name = ''.join(getShortName(getAllCitiesList()[go_to])) # name is shortened name of go_to city (function in city.py)
 
-    if conductor.location.city_id != go_to and not pickup:
+    original_name = ''.join(getShortName(getAllCitiesList()[original])) # shortened name of home city
+
+    if conductor.location.city_id != go_to and not pickup: # if going to pick up
         return 'Go to {}.'.format(go_to_name)
-    elif conductor.location.city_id != go_to and conductor.location.city_id != original and pickup:
+    elif conductor.location.city_id != go_to and conductor.location.city_id != original and pickup: # if returning
         return 'Return to {}.'.format(original_name)
-    elif conductor.location.city_id == go_to and not pickup:
+    elif conductor.location.city_id == go_to and not pickup: # if at pickup location, now picked up
         pickup = True
         return 'Cargo picked up. Now return to {}.'.format(original_name)
-    elif conductor.location.city_id == go_to and pickup:
-        return 'Return to {}.'.format(original_name)
-    elif conductor.location.city_id == original and pickup:
-
+    # elif conductor.location.city_id == go_to and pickup: # if at pickup location, and already picked up
+    #     return 'Return to {}.'.format(original_name)
+    elif conductor.location.city_id == original and pickup: # if returned with cargo
         return 'Dropped off! Points: {}'.format(conductor.points)
 
 
-def getRandomCity():
-    x = random.randint(0,31)
-    return getAllCitiesList()[x]
 
 
-def commands(inp, conductor, go_to, original, picked_up):
-    game_exit(inp)
-    if inp == 'look' or inp == 'l':
-        conductor.location.printCity()
-        print(goTo(go_to, conductor, original, picked_up))
-        return 1
-    elif inp == 'points' or inp == 'p':
-        print('Points:', conductor.points)
-    elif inp == 'map' or inp == 'm':
-        f = open('ascii-map-labeled.txt', 'r')
-        file_contents = f.read()
-        print (file_contents)
-        f.close()
-    elif inp == 'help' or inp == 'h':
-        print(
-'''Explore Mexico with your small start-up train!
-To move from city to city, type in the cardinal direction indicated, not the desired city.
-    Example:    "Southwest:    Morelia"
-    To travel to Morelia, input 'Southwest' or 'southwest' or 'sw'.
-Other commands:
-    'exit' or 'quit' - exit the game
-    'look' or 'l' - print the current city's name, quest, and available cities.
-    'points' or 'p' - print your current score
-    'map' or 'm' - print out a reference map of Mexico
-        ''')
-        return 1
-    else:
-        return 0
 
 
 def move(inp, dir_list, city_list):
     move_index = inputDirection(inp, dir_list)
-    move_to = str(np.lower(city_list[move_index]))
+    move_to = str(city_list[move_index].lower())
     move_to_list = list(move_to)
     for i in range(len(move_to_list)):
         if move_to_list[i] == ' ':
@@ -211,23 +180,5 @@ def inputDirection(inp, dir_list):
     if fail:
         return 'fail'
 
-intro_ascii_text = '''
-                    |_   _  |_   .  _       _       _
-                \)/ | ) (_| |_   | _)   \/ (_) |_| |
-                                        /
-
-
-    __    ____   ______ ____          __  ___ ____  ______ ____ _    __ ______ ___
-   / /   / __ \ / ____// __ \        /  |/  // __ \/_  __//  _/| |  / // ____//__ \ 
-  / /   / / / // /    / / / /______ / /|_/ // / / / / /   / /  | | / // __/    / _/
- / /___/ /_/ // /___ / /_/ //_____// /  / // /_/ / / /  _/ /   | |/ // /___   /_/
-/_____/\____/ \____/ \____/       /_/  /_/ \____/ /_/  /___/   |___//_____/  (_)
-
-''' #Straight + Slant (fitted) from patorjk.com/software/taag/
-
-def game_exit(inp):
-    if np.lower(inp) == 'exit' or np.lower(inp) == 'quit':
-        print('Adios!')
-        exit()
 
 main()
